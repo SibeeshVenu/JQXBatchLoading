@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title id='Description'>This example illustrates how to customize the filtering conditions available in the columns popup menu.
+    </title>
+    <script src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.filter.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.sort.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.selection.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.pager.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.columnsresize.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.columnsreorder.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxgrid.export.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxdata.export.js"></script>
+    <script type="text/javascript" src="JQXItems/jqwidgets/jqxdatatable.js"></script>
+    <script src="JQXItems/jqwidgets/jqxmenu.js"></script>
+    <link href="JQXItems/jqwidgets/styles/jqx.base.css" rel="stylesheet" />
+    <script src="generatedata.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var totRecord = 30000;
+            var dataEntire = [];
+            var remainingData = [];
+            var pagenumber;
+            loadGridWithInitialData();
+            setTimeout(function () {
+                remainingData = loadRemainingDataToLocalArray(dataEntire);
+                if (remainingData.length == totRecord)
+                loadRemainingDataToSource(remainingData);
+                $("#jqxgrid").jqxGrid('gotopage', pagenumber);
+            }, 10000);
+            function loadGridWithInitialData() {
+                dataEntire = generatedata(1000);
+                var source = {
+                    totalrecords: totRecord,
+                    localdata: dataEntire,
+                    contentType: 'application/json; charset=utf-8',
+                    datatype: "array",
+                    datafields: [
+                        { name: 'firstname', type: 'string' },
+                        { name: 'lastname', type: 'string' },
+                        { name: 'productname', type: 'string' },
+                        { name: 'date', type: 'date' },
+                        { name: 'quantity', type: 'number' }
+                    ]
+                };
+              
+                taskOverviewDataadapter = new $.jqx.dataAdapter(source);
+                $("#jqxgrid").jqxGrid(
+                    {
+                        selectionmode: 'none',
+                        width: '100%',
+                        source: taskOverviewDataadapter,
+                        autoheight: true,
+                        pageable: true,
+                        altrows: true,
+                        columns: [
+                                         { text: 'First Name', datafield: 'firstname', width: 200, 'pinned': true },
+                                         { text: 'Last Name', datafield: 'lastname', width: 200 },
+                                         { text: 'Product', datafield: 'productname', width: 180 },
+                                         { text: 'Order Date', datafield: 'date', width: 160, cellsformat: 'dd-MMMM-yyyy' },
+                                         { text: 'Quantity', datafield: 'quantity', cellsalign: 'right', cellsformat: 'c' }
+                        ]
+                    });               
+            }
+            function loadRemainingDataToLocalArray(dataEntire) {
+                var paginginformation = $("#jqxgrid").jqxGrid("getpaginginformation");
+                pagenumber = paginginformation.pagenum;
+                for (var i = 0; i < totRecord;) {
+                    var dataCurrent = generatedata(1000);
+                    $.merge(dataEntire, dataCurrent);
+                    i = dataEntire.length;
+                }
+                return dataEntire;
+            }
+            function loadRemainingDataToSource(remainingData) {
+                var source = {
+                    localdata: remainingData,
+                    contentType: 'application/json; charset=utf-8',
+                    datatype: "array",
+                    datafields: [
+                        { name: 'firstname', type: 'string' },
+                        { name: 'lastname', type: 'string' },
+                        { name: 'productname', type: 'string' },
+                        { name: 'date', type: 'date' },
+                        { name: 'quantity', type: 'number' }
+                    ]
+                };
+                taskOverviewDataadapter = new $.jqx.dataAdapter(source);
+                $("#jqxgrid").jqxGrid(
+                    {
+                        selectionmode: 'none',
+                        width: '100%',
+                        source: taskOverviewDataadapter,
+                        autoheight: true,
+                        filterable: true,
+                        sortable: true,
+                        pageable: true,
+                        autorowheight: true,
+                        altrows: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        columns: [
+                                         { text: 'First Name', datafield: 'firstname', width: 200, 'pinned': true },
+                                         { text: 'Last Name', datafield: 'lastname', width: 200 },
+                                         { text: 'Product', datafield: 'productname', width: 180 },
+                                         { text: 'Order Date', datafield: 'date', width: 160, cellsformat: 'dd-MMMM-yyyy' },
+                                         { text: 'Quantity', datafield: 'quantity', cellsalign: 'right', cellsformat: 'c' }
+                        ]
+                    });
+                $("#jqxgrid").jqxGrid('updatebounddata');                
+            }
+        });
+    </script>
+</head>
+<body class='default'>
+    <div id="jqxgrid"></div>
+</body>
+</html>
